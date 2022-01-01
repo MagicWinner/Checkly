@@ -8,35 +8,31 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Checkly {
     public static String FILE = System.getenv("APPDATA") + "\\.vimeworld\\minigames\\logs\\latest.log";
-    public static final ConcurrentHashMap<String, Boss> BOSSES = new ConcurrentHashMap<>();
+    public static final Boss[] BOSSES = new Boss[12];
 
     public static Timer timer = new Timer();
 
-    private String lastString = "Первые две буквы в слове \"гребля\" означают групповая";
+    private String lastString = "";
     private final Logger logger = new Logger();
 
     private boolean sound = false;
 
     public Checkly() {
-        BOSSES.put("Королевский зомби", new Boss("Королевский зомби", getMinute(25), "/base"));
-        BOSSES.put("Сточный слизень", new Boss("Сточный слизень", getHour(1), "/mine 6"));
-        BOSSES.put("Матка", new Boss("Матка", getMinute(90), "/mine 10"));
-        BOSSES.put("Йети", new Boss("Йети", getHour(3), "/mine 15"));
-        BOSSES.put("Коровка из Коровёнки", new Boss("Коровка из Коровёнки" , getHour(3), "/mine 13"));
-        BOSSES.put("Левиафан", new Boss("Левиафан", getMinute(150), "/village"));
-        BOSSES.put("Небесный владыка", new Boss("Небесный владыка", getHour(5), "/mine 23"));
-        BOSSES.put("Хранитель подводного мира", new Boss("Хранитель подводного мира", getHour(5), "/mine 18"));
-        BOSSES.put("Холуй", new Boss("Холуй", getMinute(45), "/mine 5"));
-
-        BOSSES.put("Фенрир", new Boss("Фенрир", getMinute(90), "/mine 8"));
-        BOSSES.put("Все Всадники апокалипсиса", new Boss("Все Всадники апокалипсиса", getMinute(150), "/mine 9"));
-        BOSSES.put("Житель края", new Boss("Житель края", getHour(4), "/mine 21"));
-
-        //BOSSES.put("Название босса", new Boss("Название босса", *время между убийством и появлением*, "*место, где он спавнится*"));
+        BOSSES[0] = new Boss("Королевский зомби", getMinute(25), "/base", "&7");
+        BOSSES[1] = new Boss("Холуй", getMinute(45), "/mine 5", "&9");
+        BOSSES[2] = new Boss("Сточный слизень", getHour(1), "/mine 6", "&a");
+        BOSSES[3] = new Boss("Фенрир", getMinute(90), "/mine 8", "&c");
+        BOSSES[4] = new Boss("Все Всадники апокалипсиса", getMinute(150), "/mine 9", "&7");
+        BOSSES[5] = new Boss("Матка", getMinute(90), "/mine 10", "&2");
+        BOSSES[6] = new Boss("Коровка из Коровёнки", getHour(3), "/mine 13", "&d");
+        BOSSES[7] = new Boss("Йети", getHour(3), "/mine 15", "&b");
+        BOSSES[8] = new Boss("Левиафан", getMinute(150), "/village", "&6");
+        BOSSES[9] = new Boss("Хранитель подводного мира", getHour(5), "/mine 18", "&3");
+        BOSSES[10] = new Boss("Житель края", getHour(4), "/mine 21", "&5");
+        BOSSES[11] = new Boss("Небесный владыка", getHour(5), "/mine 23", "&f");
 
         this.header();
         this.checkLog();
@@ -66,12 +62,18 @@ public class Checkly {
         logger.successMessage("~ При спавне босса - будет отправлено сообщение в программе и воспроизведен звуковой сигнал");
         logger.successMessage("~ Изменить его можно, скопировав любой wav файл рядом с программой и назвав его snd.wav\n");
 
+        if(!checkSound()) logger.errorMessage("</> Файл со звуком уведомления не найден. Необходимо поместить его рядом с программой, переименовав как snd.wav");
+    }
+
+    private boolean checkSound(){
         try{
             AudioSystem.getAudioInputStream(new File("./snd.wav"));
             sound = true;
+
+            return true;
         }
         catch (Exception e){
-            logger.errorMessage("</> Файл со звуком уведомления не найден. Поместите его обратно рядом с программой, назвав snd.wav");
+            return false;
         }
     }
 
@@ -88,7 +90,7 @@ public class Checkly {
                     if (Objects.equals(last_line, lastString)) return;
                     lastString = last_line;
 
-                    for (Boss boss : BOSSES.values()) {
+                    for (Boss boss : BOSSES) {
                         if (!boss.isKill(last_line)) continue;
                         logger.killedMessage(boss);
 
@@ -106,10 +108,6 @@ public class Checkly {
                                     Clip clip = AudioSystem.getClip();
 
                                     clip.open(ais);
-                                    /*
-                                    FloatControl vc = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                                    vc.setValue(5);
-                                     */
                                     clip.setFramePosition(0);
                                     clip.start();
 
