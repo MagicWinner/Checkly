@@ -1,8 +1,9 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="Checkly:jar">
+  <artifact type="jar" build-on-make="true" name="Checkly:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Checkly_jar</output-path>
     <root id="archive" name="Checkly.jar">
       <element id="module-output" name="Checkly" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Libs/snakeyaml-1.30.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
